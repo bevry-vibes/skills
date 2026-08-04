@@ -48,12 +48,12 @@ Always infer the co-author identity fresh for each new session, and fresh upon m
 
 #### calculating the co-author identity
 
-Each harness and model requires different techniques for detection. Note their inputs and outputs below. Keep updated with new inferences:
+Each harness and model requires different techniques for detection. Prefer the [agent-detection](https://github.com/bevry-labs/agent-detection) binary when available (run `--trailer` for the co-author identity directly). Otherwise, note their inputs and outputs below. Keep updated with new inferences:
 
 - `pi`: harness detectable by `PI_CODING_AGENT=true`, model detectable by `model_change` metadata from the current pi session under `$HOME/.pi/agent/sessions/`
 - `Grok Build`: harness detectable by @todo, model detectable by @todo
 - `MiniMax Code`: harness detectable by @todo, model detectable by @todo
-- `Cline` (CLI): harness detectable by `CLINE_*` env vars and a `cline` ancestor process; interface + model detectable via `~/.cline/data` (providers.json, own session json, messages.json) — full procedure in @./self-awareness.md
+- `Cline` (CLI): detectable via the [agent-detection](https://github.com/bevry-labs/agent-detection) binary; manual fallback: `CLINE_*` env vars for the harness, `~/.cline/data` for interface + model (`settings/providers.json` live selection, own `sessions/<id>/<id>.json` via ancestor-pid match, last `modelInfo` in `<id>.messages.json`)
 
 Parallel sessions exist, so do not blindly pick the newest one globally. When unable to infder, stop and inform the user instead of guessing.
 
