@@ -4,7 +4,7 @@
 - @./commits.md is our instructions to AIs on commit hygiene
 - @./license.md is our instructions to AIs on license hygiene
 - @./conventions.md is our instructions on AIs to scaffold a project
-- <https://github.com/bevry-labs/agent-detection> is our binary for AIs to infer their own harness, model, and interface
+- <https://github.com/bevry-labs/agent-detection> is our binary for AIs to infer their own harness, model, and provider
 
 <!-- LICENSE/ -->
 
