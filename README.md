@@ -1,10 +1,10 @@
 # Bevry's Skills for AI Agents
 
-- @./policy.md is our AI policy, for which AIs are permitted
-- @./commits.md is our instructions to AIs on commit hygiene
-- @./license.md is our instructions to AIs on license hygiene
-- @./conventions.md is our instructions on AIs to scaffold a project
-- <https://github.com/bevry-labs/agent-detection> is our binary for AIs to infer their own harness, model, and provider
+- @./policy.md is our AI policy, for which AIs are permitted - include a reference in your AGENTS.md
+- @./commits.md is our instructions to AIs on commit hygiene - include a reference in your AGENTS.md
+- <https://github.com/bevry-labs/agent-detection> is our binary for AIs to infer their harness, provider, and model - already referenced by @./policy.md and @./commits.md
+- @./license.md is our instructions to AIs on license hygiene - refer to once, no need for including in AGENTS.md
+- @./conventions.md is our instructions on AIs to scaffold a project - refer to once, no need for including in AGENTS.md
 
 <!-- LICENSE/ -->
 
