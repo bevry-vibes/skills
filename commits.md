@@ -53,7 +53,7 @@ Each harness and model requires different techniques for detection. Note their i
 - `pi`: harness detectable by `PI_CODING_AGENT=true`, model detectable by `model_change` metadata from the current pi session under `$HOME/.pi/agent/sessions/`
 - `Grok Build`: harness detectable by @todo, model detectable by @todo
 - `MiniMax Code`: harness detectable by @todo, model detectable by @todo
-- `Cline`: harness detectable by @todo, model detectable by @todo
+- `Cline` (CLI): harness detectable by `CLINE_*` env vars and a `cline` ancestor process; interface + model detectable via `~/.cline/data` (providers.json, own session json, messages.json) — full procedure in @./self-awareness.md
 
 Parallel sessions exist, so do not blindly pick the newest one globally. When unable to infder, stop and inform the user instead of guessing.
 
@@ -64,5 +64,6 @@ Parallel sessions exist, so do not blindly pick the newest one globally. When un
 - `Co-authored-by: Grok Build - Grok 4.5 <grokbuild-grok45@local>`
 - `Co-authored-by: MiniMax Code - MiniMax-M3 <minimaxcode-minimaxm3@local>`
 - `Co-authored-by: pi - MiniMax-M3 <pi-minimaxm3@local>`
+- `Co-authored-by: Cline - Kimi K3 <cline-kimik3@local>`
 
 When a new harness/model pair takes over, append its trailer to this list.
