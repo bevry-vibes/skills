@@ -54,11 +54,4 @@ Parallel sessions exist, so do not blindly pick the newest one globally. When un
 
 #### formatting the co-author identity trailer
 
-**Trailer format** — `Co-authored-by: ${harness} - ${model} <${lowercase-alphanumeric-harness}-${lowercase-alphanumeric-model}@local>`, on its own line, preceded by a blank line. The `@local` TLD is not a real address. Known co-author identities:
-
-- `Co-authored-by: Grok Build - Grok 4.5 <grokbuild-grok45@local>`
-- `Co-authored-by: MiniMax Code - MiniMax-M3 <minimaxcode-minimaxm3@local>`
-- `Co-authored-by: pi - MiniMax-M3 <pi-minimaxm3@local>`
-- `Co-authored-by: Cline - Kimi K3 <cline-kimik3@local>`
-
-When a new harness/model pair takes over, append its trailer to this list.
+Generate the trailer via [`agent-detection --trailer`](https://github.com/bevry-labs/agent-detection) — never construct it by hand. The format, regex, and the list of known identities live in [agent-detection's DESIGN.md](https://github.com/bevry-labs/agent-detection/blob/main/DESIGN.md) ("Known co-author identities"). When a new harness/model pair takes over, add it there, not here.
