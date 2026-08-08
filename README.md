@@ -15,6 +15,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 
 - @./policy.md our AI policy, mandating which AIs are permitted
 - @./commits.md our instructions to AIs on commit hygiene
+- @./minimax.md our instructions for MiniMax model tweaks
 
 <!-- LICENSE/ -->
 
