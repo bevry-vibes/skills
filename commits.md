@@ -38,4 +38,4 @@ If either `user.name` and `user.email` are unset or empty, prompt the user for w
 
 **Co-author trailer = agent harness + model, always.** Every agent-authored commit must end with exactly one `Co-authored-by:` trailer identifying the active harness and model. The trailer is a credit line, not a stand-in for the author.
 
-The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibe/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent. 
+The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
