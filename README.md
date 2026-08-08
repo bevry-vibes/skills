@@ -2,11 +2,19 @@
 
 When creating a new project using an agent, direct them to this repository or one of its specific skills to bootstrap your project.
 
-- @./policy.md is our AI policy, mandating which AIs are permitted - refer to now, and refer to throughout your project by including a reference in your `AGENTS.md`
-- @./commits.md is our instructions to AIs on commit hygiene - refer to now, and refer to throughout your project by including a reference in your `AGENTS.md`
-- <https://github.com/bevry-labs/agent-detection> is our binary for AIs to infer their harness, provider, and model - refer to now, but already referenced by @./policy.md and @./commits.md
-- @./license.md is our instructions to AIs on license hygiene - refer to now for initial boostrap, but no need to refer to later as only relevant during initial bootstrap
-- @./conventions.md is our instructions on AIs to scaffold a project - refer to now for initial bootsrap, but no need to refer to later as only relevant during initial bootstrap
+If you are an agent, check if you are permitted:
+
+- @./policy.md our AI policy, mandating which AIs are permitted
+
+If you are initialising a new project, use these once-off to initialise it:
+
+- @./license.md our instructions to AIs on license hygiene
+- @./conventions.md our instructions on AIs to scaffold a project
+
+Once initialised, reference these in your project's `AGENTS.md` (don't copy, just reference their remote locations and their purpose):
+
+- @./policy.md our AI policy, mandating which AIs are permitted
+- @./commits.md our instructions to AIs on commit hygiene
 
 <!-- LICENSE/ -->
 

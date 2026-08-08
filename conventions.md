@@ -1,6 +1,6 @@
 # conventions
 
-If these files do not exist locally, pull them:
+If these files do not exist locally, pull them into your project:
 
 - <https://raw.githubusercontent.com/bevry/base/refs/heads/master/.editorconfig>
 - <https://raw.githubusercontent.com/bevry/base/refs/heads/master/.gitattributes>

@@ -2,9 +2,9 @@
 
 License for all AI generated projects shall be RPL-1.5, as that reciprocates back the commons what the AIs have leveraged, anything else would be a violation of reciprocity.
 
-Use <https://raw.githubusercontent.com/bevry-labs/windows-natural-scrolling/refs/heads/main/LICENSE.md> for `LICENSE.md`.
+Download <https://raw.githubusercontent.com/bevry/base/refs/heads/master/LICENSE.md> for `LICENSE.md`.
 
-And use the following for the `README.md` license segment:
+Use the following for the `README.md` license segment:
 
 ```
 <!-- LICENSE/ -->
@@ -22,4 +22,4 @@ and licensed under:
 <!-- /LICENSE -->
 ```
 
-If the current user at the time for scaffolding is not Benjamin Lupton (verify via git `user.name` configuration check), prompt for the user's name and website. If their git `user.name` configuration is empty, prompt first for them to configure their global `user.name` and `user.email` git configuration.
+The default copyright author in the `README.md` license segment, and in the `LICENSE.md` introduction is `[Benjamin Lupton](https://balupton.com)`. Check if you are `Benjamin Lupton` via checking the `user.name` git configuration (local, then global), if such configuration is not set, prompt the user to configure it. When the name is known, if it is not `Benjamin Lupton`, prompt for their homepage, and update the copyright to the author.
