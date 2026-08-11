@@ -1,6 +1,6 @@
 # MiniMax
 
-Use [agent-detect](https://github.com/bevry-vibes/agent-detect) for agent detection (harness, provider, model).
+Use [agent-detect](https://github.com/bevry-vibes/agent-detect) for agent identification (harness, provider, model).
 
 ## MiniMax M3
 
