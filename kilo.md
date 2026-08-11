@@ -2,7 +2,7 @@
 
 Use [agent-detect](https://github.com/bevry-vibes/agent-detect) for agent identification (harness, provider, model).
 
-## Kilo
+## Kilo Code
 
 Unless your harness is `kilo`, ignore these rules.
 
