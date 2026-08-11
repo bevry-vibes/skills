@@ -4,11 +4,11 @@ Use [agent-detect](https://github.com/bevry-vibes/agent-detect) for agent identi
 
 ## MiniMax M3
 
-Unless your model is `MiniMax M3`, ignore these rules.
+Unless your model is `minimaxm3`, ignore these rules.
 
 ### Never use `sed`, `awk`, regex substitutions, or partial-line edits to modify source files
 
-Unless your model is `MiniMax M3`, ignore this rule.
+Unless your model is `minimaxm3`, ignore this rule.
 Unless your harness is `pi` or `cline`, ignore this rule.
 
 You are not reliable at scripting partial replacements with
@@ -49,7 +49,7 @@ before and after.
 
 ### `ask_question` tool schema (Cline) — options are STRINGS, not objects
 
-Unless your model is `MiniMax M3`, ignore this rule.
+Unless your model is `minimaxm3`, ignore this rule.
 Unless your harness is `cline`, ignore this rule.
 
 **Rule:** when calling the Cline `ask_question` tool, the `options` array
