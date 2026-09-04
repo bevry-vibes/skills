@@ -39,3 +39,14 @@ If either `user.name` and `user.email` are unset or empty, prompt the user for w
 **Co-author trailer = agent harness + model, always.** Every agent-authored commit must end with exactly one `Co-authored-by:` trailer identifying the active harness and model. The trailer is a credit line, not a stand-in for the author.
 
 The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
+
+## release notes
+
+A tagged release carries a full changelog, not just the workflow's stub:
+
+1. The release workflow publishes the pushed tag with a fixed one-line body (the stable-release pointer and its download note).
+2. Once that run completes (`gh run watch <run-id> --exit-status`), replace the body with the full changelog: `gh release edit <version> --notes-file .release-notes-<version>.md`.
+3. Draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
+4. Structure: lead with the workflow's stable-release line unchanged, then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains), and close with a **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
+5. The notes file is an artifact — delete it after uploading; never commit it.
+6. Verify the final state with `gh release view <version>`: body updated, not a draft or prerelease, assets present.
