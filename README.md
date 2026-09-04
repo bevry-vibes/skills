@@ -15,8 +15,23 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 
 - @./policy.md our AI policy, mandating which AIs are permitted
 - @./commits.md our instructions to AIs on commit hygiene
+- @./plans.md our instructions to AIs on plan conventions
+- @./powershell.md our instructions to AIs on PowerShell 7.6+ work
+- @./zig.md our instructions to AIs on Zig 0.16 work
 - @./minimax.md our instructions for MiniMax model tweaks
-- @./kilo.md our instructions for Kilo harness tweaks
+
+## local tweaks pattern
+
+When a referenced skill applies to your project **with your project's tweaks**:
+
+1. Create a local `<name>.md` file at the repo root that:
+   - references the remote skill URL (the remote file stays the single source of truth), and
+   - lists the project's tweaks underneath it.
+2. Your `AGENTS.md` references the **local** file, never the remote URL with inline tweaks.
+3. When a skill applies **without tweaks**, `AGENTS.md` keeps the plain remote URL bullet.
+4. A decision that a skill does **not** apply is a non-application decision, not a tweak — it stays an `AGENTS.md` bullet with its rationale.
+
+This keeps the remote files authoritative and the tweaks visible separately (so they can be upstreamed), while `AGENTS.md` stays a pure pointer.
 
 <!-- LICENSE/ -->
 
