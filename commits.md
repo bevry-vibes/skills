@@ -51,13 +51,16 @@ Assisted-by: pi - MiniMax-M3 <pi-minimaxm3@local>
 
 The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detect) `trailer assisted-by` output, generated fresh for each post the same way the commit co-author trailer is — never guessed or cached. If generation fails, do not post without it; fix the generation first.
 
-## release notes
+## releases
 
 A tagged release carries a full changelog, not just the workflow's stub:
 
-1. The release workflow publishes the pushed tag with a fixed one-line body (the stable-release pointer and its download note).
-2. Once that run completes (`gh run watch <run-id> --exit-status`), replace the body with the full changelog: `gh release edit <version> --notes-file .release-notes-<version>.md`.
-3. Draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
-4. Structure: lead with the workflow's stable-release line unchanged, then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains), and close with a **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
-5. The notes file is an artifact — delete it after uploading; never commit it.
-6. Verify the final state with `gh release view <version>`: body updated, not a draft or prerelease, assets present.
+1. **Version bump** — `chore: release X.Y.Z — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
+2. **Tag** — annotated `vX.Y.Z`; the tag message is a one-paragraph summary. The release title is `vX.Y.Z — <headline>` — never repeat the product name; the tag and repo already carry it.
+3. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead.
+4. **Stub first** — the release workflow publishes the pushed tag with a fixed one-line body (the stable-release pointer and its download note). Exactly one workflow job may create the release or set `generate_release_notes`: every job that does appends its own generated block to the body (duplicated "Full Changelog" footers).
+5. **Full notes** — once that run completes (`gh run watch <run-id> --exit-status`), replace the body with the full changelog: `gh release edit <version> --notes-file .release-notes-<version>.md`.
+6. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
+7. **Structure** — lead with the workflow's stable-release line unchanged; no H1 (the release title already renders as the header); only this release's changes, never prior releases'; then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains); close with exactly one **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
+8. The notes file is an artifact — delete it after uploading; never commit it.
+9. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
