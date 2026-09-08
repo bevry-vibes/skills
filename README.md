@@ -16,6 +16,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./policy.md our AI policy, mandating which AIs are permitted
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
+- @./build.md our instructions to AIs on building, packaging, and login-autostart for menu-bar/tray apps
 - @./powershell.md our instructions to AIs on PowerShell 7.6+ work
 - @./zig.md our instructions to AIs on Zig 0.16 work
 - @./minimax.md our instructions for MiniMax model tweaks
@@ -31,7 +32,33 @@ When a referenced skill applies to your project **with your project's tweaks**:
 3. When a skill applies **without tweaks**, `AGENTS.md` keeps the plain remote URL bullet.
 4. A decision that a skill does **not** apply is a non-application decision, not a tweak — it stays an `AGENTS.md` bullet with its rationale.
 
-This keeps the remote files authoritative and the tweaks visible separately (so they can be upstreamed), while `AGENTS.md` stays a pure pointer.
+This keeps the remote files authoritative and the tweaks visible separately (so they can be upstreamed). `AGENTS.md` points at the authoritative sources and may also carry this project's own sections — those are project rules, never copies of upstream skills.
+
+The canonical `AGENTS.md` shape (repo-specific sections follow the bullets when needed; there is no footer):
+
+```markdown
+# AGENTS.md
+
+This project conforms to Bevry's skills.
+Reference their remote URLs only — do not pull their contents into this file.
+When a referenced skill applies with your project's tweaks, the local `<name>.md` file at this repo root references the remote URL and lists the tweaks underneath;
+this process is documented in the upstream repo's [local tweaks pattern](https://github.com/bevry-vibes/skills#local-tweaks-pattern).
+
+- https://github.com/bevry-vibes/skills/blob/main/<skill>.md — **applies** [when …]. <description>
+- [<name>.md](./<name>.md) — **applies**, with this project's tweaks (<summary>)
+```
+
+The canonical local `<name>.md` shape:
+
+```markdown
+# <name>.md
+
+Local application of the bevry-vibes skills [<name>.md](https://github.com/bevry-vibes/skills/blob/main/<name>.md) — see the upstream [local tweaks pattern](https://github.com/bevry-vibes/skills#local-tweaks-pattern).
+
+## this project's tweaks
+
+<tweak bullets/sections>
+```
 
 <!-- LICENSE/ -->
 
