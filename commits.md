@@ -40,6 +40,10 @@ If either `user.name` and `user.email` are unset or empty, prompt the user for w
 
 The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
 
+### signing
+
+Commits and pushes sign through the 1Password SSH agent — unlock 1Password first; the agent intermittently returns errors otherwise.
+
 ## github issues, pull requests, and comments
 
 GitHub attributes an issue, pull request, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue body, pull request body, or comment must therefore close with an **assisted-by trailer** footer:
@@ -51,13 +55,38 @@ Assisted-by: pi - MiniMax-M3 <pi-minimaxm3@local>
 
 The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detect) `trailer assisted-by` output, generated fresh for each post the same way the commit co-author trailer is — never guessed or cached. If generation fails, do not post without it; fix the generation first.
 
-## release notes
+## releases
 
-A tagged release carries a full changelog, not just the workflow's stub:
+A tagged release carries the full changelog as its body:
 
-1. The release workflow publishes the pushed tag with a fixed one-line body (the stable-release pointer and its download note).
-2. Once that run completes (`gh run watch <run-id> --exit-status`), replace the body with the full changelog: `gh release edit <version> --notes-file .release-notes-<version>.md`.
-3. Draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
-4. Structure: lead with the workflow's stable-release line unchanged, then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains), and close with a **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
-5. The notes file is an artifact — delete it after uploading; never commit it.
-6. Verify the final state with `gh release view <version>`: body updated, not a draft or prerelease, assets present.
+1. **Versioning** — semver, tagged `v<major>.<minor>.<patch>`, unless the project's tweaks elect calver (see **calver** below).
+2. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
+3. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name.
+4. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
+5. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
+6. **Structure** — no H1 (the release title already renders as the header); only this release's changes, never prior releases'; then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains); close with exactly one **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
+7. Don't set `generate_release_notes` anywhere in the release workflow — we write our own release notes; a generated block would only append a second changelog to the body.
+8. **Full notes** — once the workflow run completes (`gh run watch <run-id> --exit-status`), set the title and body: `gh release edit <version> --title "<version> — <headline>" --notes-file .release-notes-<version>.md`. Workflows that leave the title unset create the release named after the tag alone — this edit is where the title rule is applied.
+9. The notes file is an artifact — delete it after uploading; never commit it.
+10. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
+
+### calver
+
+Calver versions follow the `<year>.<month>.<day>-<revision>` format (e.g. `2026.8.6-1`).
+The date is always UTC so devs in different timezones produce the same string.
+The revision resets to `1` each day and increments per release within the same day.
+The tag name equals the version string exactly — no `v` prefix — so it matches the workflow's tag filter (e.g. `tags: ['*.*.*-*']`).
+
+Maintainer runbook:
+
+```sh
+# 1. Compute today's UTC date and the next revision for that day.
+today=$(date -u +%Y.%-m.%-d)        # GNU & macOS alike with %-
+rev=$(git tag --list "${today}-*" | wc -l | tr -d ' ')
+new_version="${today}-$((rev + 1))"
+
+# 2. Bump `<new_version>` into the project's manifest, commit on main
+#    with the generated co-author trailer, then tag and push both.
+git tag "${new_version}"
+git push origin main "${new_version}"
+```
