@@ -59,7 +59,7 @@ The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detec
 
 A tagged release carries the full changelog as its body:
 
-1. **Versioning** — semver, tagged `v<major>.<minor>.<patch>`, unless the project's tweaks elect calver — `<year>.<month>.<day>-<revision>` tagged bare (e.g. `2026.9.9-1`).
+1. **Versioning** — semver, tagged `v<major>.<minor>.<patch>`, unless the project's tweaks elect calver (see **calver** below).
 2. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
 3. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name.
 4. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
@@ -69,3 +69,24 @@ A tagged release carries the full changelog as its body:
 8. **Full notes** — once the workflow run completes (`gh run watch <run-id> --exit-status`), set the title and body: `gh release edit <version> --title "<version> — <headline>" --notes-file .release-notes-<version>.md`. Workflows that leave the title unset create the release named after the tag alone — this edit is where the title rule is applied.
 9. The notes file is an artifact — delete it after uploading; never commit it.
 10. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
+
+### calver
+
+Calver versions follow the `<year>.<month>.<day>-<revision>` format (e.g. `2026.8.6-1`).
+The date is always UTC so devs in different timezones produce the same string.
+The revision resets to `1` each day and increments per release within the same day.
+The tag name equals the version string exactly — no `v` prefix — so it matches the workflow's tag filter (e.g. `tags: ['*.*.*-*']`).
+
+Maintainer runbook:
+
+```sh
+# 1. Compute today's UTC date and the next revision for that day.
+today=$(date -u +%Y.%-m.%-d)        # GNU & macOS alike with %-
+rev=$(git tag --list "${today}-*" | wc -l | tr -d ' ')
+new_version="${today}-$((rev + 1))"
+
+# 2. Bump `<new_version>` into the project's manifest, commit on main
+#    with the generated co-author trailer, then tag and push both.
+git tag "${new_version}"
+git push origin main "${new_version}"
+```
