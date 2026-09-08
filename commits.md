@@ -59,12 +59,14 @@ The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detec
 
 A tagged release carries the full changelog as its body:
 
-1. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
-2. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name.
-3. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
-4. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
+1. **Versioning** — semver, tagged `v<major>.<minor>.<patch>`, unless the project's tweaks elect calver — `<year>.<month>.<day>-<revision>` tagged bare (e.g. `2026.9.9-1`).
+2. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
+3. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name.
+4. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
+5. **Channels** — every releasing project publishes both: `latest` — tagged releases, `latest: true`, never prerelease, `releases/latest/download/<asset>` — and `nightly` — every push to `main`, `prerelease: true`, `latest: false`, `releases/tag/nightly/download/<asset>`. Stable download URLs, and a nightly can never become the stable channel.
+6. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
 5. **Structure** — no H1 (the release title already renders as the header); only this release's changes, never prior releases'; then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains); close with exactly one **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
-6. Don't set `generate_release_notes` anywhere in the release workflow — we write our own release notes; a generated block would only append a second changelog to the body.
-7. **Full notes** — once the workflow run completes (`gh run watch <run-id> --exit-status`), set the title and body: `gh release edit <version> --title "<version> — <headline>" --notes-file .release-notes-<version>.md`. Workflows that leave the title unset create the release named after the tag alone — this edit is where the title rule is applied.
-8. The notes file is an artifact — delete it after uploading; never commit it.
-9. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
+7. Don't set `generate_release_notes` anywhere in the release workflow — we write our own release notes; a generated block would only append a second changelog to the body.
+8. **Full notes** — once the workflow run completes (`gh run watch <run-id> --exit-status`), set the title and body: `gh release edit <version> --title "<version> — <headline>" --notes-file .release-notes-<version>.md`. Workflows that leave the title unset create the release named after the tag alone — this edit is where the title rule is applied.
+9. The notes file is an artifact — delete it after uploading; never commit it.
+10. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
