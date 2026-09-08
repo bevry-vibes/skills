@@ -40,6 +40,10 @@ If either `user.name` and `user.email` are unset or empty, prompt the user for w
 
 The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
 
+### signing
+
+Commits and pushes sign through the 1Password SSH agent — unlock 1Password first; the agent intermittently returns errors otherwise.
+
 ## github issues, pull requests, and comments
 
 GitHub attributes an issue, pull request, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue body, pull request body, or comment must therefore close with an **assisted-by trailer** footer:
@@ -55,9 +59,9 @@ The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detec
 
 A tagged release carries a full changelog, not just the workflow's stub:
 
-1. **Version bump** — `chore: release X.Y.Z — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
-2. **Tag** — annotated `vX.Y.Z`; the tag message is a one-paragraph summary. The release title is `vX.Y.Z — <headline>` — never repeat the product name; the tag and repo already carry it.
-3. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead.
+1. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
+2. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name; the tag and repo already carry it.
+3. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
 4. **Stub first** — the release workflow publishes the pushed tag with a fixed one-line body (the stable-release pointer and its download note). Exactly one workflow job may create the release or set `generate_release_notes`: every job that does appends its own generated block to the body (duplicated "Full Changelog" footers).
 5. **Full notes** — once that run completes (`gh run watch <run-id> --exit-status`), replace the body with the full changelog: `gh release edit <version> --notes-file .release-notes-<version>.md`.
 6. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
