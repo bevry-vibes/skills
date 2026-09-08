@@ -40,6 +40,17 @@ If either `user.name` and `user.email` are unset or empty, prompt the user for w
 
 The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
 
+## github issues, pull requests, and comments
+
+GitHub attributes an issue, pull request, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue body, pull request body, or comment must therefore close with an **assisted-by trailer** footer:
+
+```text
+---
+Assisted-by: pi - MiniMax-M3 <pi-minimaxm3@local>
+```
+
+The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detect) `trailer assisted-by` output, generated fresh for each post the same way the commit co-author trailer is — never guessed or cached. If generation fails, do not post without it; fix the generation first.
+
 ## release notes
 
 A tagged release carries a full changelog, not just the workflow's stub:
