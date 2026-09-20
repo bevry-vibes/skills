@@ -217,21 +217,26 @@ function Read-MultiChoice {
 		# The CursorVisible getter throws on macOS, so read nothing - only set and restore.
 		[Console]::CursorVisible = $false
 		while ($true) {
-			# fill the window: header + footer + a one-line breathing margin
+			# fill the window: header + footer + a one-line breathing margin.
+			# going up pulls $top back to the focused row (one row per keypress);
+			# going down drops leading rows until the focused row fits - the
+			# same one-row-at-a-time viewport shift, never a page restart.
 			$budget = [Math]::Max([Console]::WindowHeight - $headerLines - 3, 3)
 			if ($focusIndex[$cursor] -lt $top) { $top = $focusIndex[$cursor] }
 
-			foreach ($attempt in @($top, $focusIndex[$cursor])) {
+			while ($true) {
 				$shown = @()
 				$lines = 0
-				for ($i = $attempt; $i -lt $Options.Count; $i++) {
+				for ($i = $top; $i -lt $Options.Count; $i++) {
 					$count = & $lineCount $Options[$i]
 					if ($lines + $count -gt $budget -and $shown.Count -gt 0) { break }
 					$shown += $i
 					$lines += [Math]::Min($count, $budget - $lines)
 				}
-				if ($shown -contains $focusIndex[$cursor]) { $top = $attempt; break }
-				# the focused entry fell outside the window - restart from it
+				if ($shown -contains $focusIndex[$cursor]) { break }
+				if ($shown.Count -le 1) { $top = $focusIndex[$cursor]; continue }
+				# drop the first visible row and refill
+				$top = $shown[1]
 			}
 
 			# footer: controls + the caller's live summary over the current selection
