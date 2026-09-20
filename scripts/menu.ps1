@@ -412,7 +412,7 @@ if ($MyInvocation.InvocationName -ne '.') {
 	Write-Host ''
 	Write-Host 'Demo multi-choice menu (rows with actions take left/right + space; checkbox rows take space; Enter confirms):'
 	$options = @(
-		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Green)alpha$reset$($PSStyle.Dim)  not installed$reset"; Detail = @('~/.config/alpha', '~/.local/share/alpha'); Actions = @('install'); ActionColors = @{ install = $PSStyle.Foreground.Blue } }
+		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Green)alpha$reset$($PSStyle.Dim)  not installed$reset"; Detail = @('~/.config/alpha', '~/.local/share/alpha'); Actions = @('install'); ActionColors = @{ install = $PSStyle.Foreground.BrightYellow } }
 		[pscustomobject]@{ Label = "$($PSStyle.Dim)delta  unavailable by policy$reset"; Detail = @(); Unavailable = $true }
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Yellow)beta$reset$($PSStyle.Dim)  installed$reset"; Detail = @('~/.config/beta', '~/.local/share/beta'); Actions = @('upgrade', 'uninstall'); ActionColors = @{ upgrade = $PSStyle.Foreground.Green; uninstall = $PSStyle.Foreground.Red } }
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Magenta)gamma$reset$($PSStyle.Dim)  legacy checkbox row$reset"; Detail = @('~/.config/gamma') }
