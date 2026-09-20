@@ -73,3 +73,31 @@ for ($i = 0; $i -lt $b.Length; $i++) {
 - `SELECT changes() AS c` after a DELETE → `[{"c":N}]`. The count is **connection-local**, so run the DELETE and `SELECT changes()` in ONE `sqlite3` invocation.
 - Schema/state spot-checks: `sqlite3 db ".tables"` and `"PRAGMA table_info(<table>)"`.
 - **Fresh-store gotcha:** a command that only runs DML fails with "no such table" against a freshly-deleted DB unless the schema is ensured first — run a schema-ensuring command first when recreating the store.
+
+## shared console menu
+
+Interactive console menus (single-choice and multi-choice) use the shared handler in [scripts/menu.ps1](./scripts/menu.ps1) — never a local copy. `Read-MenuChoice` returns the index of the chosen row (-1 for Esc, -2 for Ctrl+C). `Read-MultiChoice` returns the chosen option objects, an empty array for "confirmed nothing", or `$null` when cancelled or aborted. Resolve the file through a sibling checkout first, then a cache, then a download:
+
+```powershell
+$menu = $null
+foreach ($candidate in @(
+    $env:BEVRY_SKILLS_MENU,
+    (Join-Path $PSScriptRoot '../skills/scripts/menu.ps1'),
+    (Join-Path $PSScriptRoot '../../skills/scripts/menu.ps1')
+)) {
+    if ($candidate -and (Test-Path $candidate)) { $menu = $candidate; break }
+}
+if (-not $menu) {
+    $cacheDir = $IsWindows ? (Join-Path $env:LOCALAPPDATA 'bevry-vibes/skills/scripts') : (Join-Path $HOME '.cache/bevry-vibes/skills/scripts')
+    $cached = Join-Path $cacheDir 'menu.ps1'
+    if (-not (Test-Path $cached)) {
+        New-Item -ItemType Directory -Force -Path $cacheDir | Out-Null
+        Invoke-WebRequest 'https://raw.githubusercontent.com/bevry-vibes/skills/main/scripts/menu.ps1' -OutFile $cached
+    }
+    $menu = $cached
+}
+. $menu
+if (-not (Get-Command Read-MenuChoice -ErrorAction Ignore)) { throw "the shared menu loaded from $menu, but Read-MenuChoice did not arrive" }
+```
+
+Adjust the two sibling paths for the depth of your script. A tool that must also run without the network keeps its own fallback prompt for the case where the download fails and no copy exists.

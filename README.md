@@ -21,6 +21,10 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./zig.md our instructions to AIs on Zig 0.16 work
 - @./minimax.md our instructions for MiniMax model tweaks
 
+## shared scripts
+
+- @./scripts/menu.ps1 the shared arrow-key console menu (`Read-MenuChoice` / `Read-MultiChoice`) for bevry-vibes PowerShell tools — resolve it per powershell.md "shared console menu", never vendor a copy
+
 ## local tweaks pattern
 
 When a referenced skill applies to your project **with your project's tweaks**:
