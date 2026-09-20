@@ -104,7 +104,8 @@ function Read-MenuChoice {
 #   Detail - optional array of single-line strings, shown dim beneath the label; extra lines beyond MaxDetailLines collapse into a "+N more" line.
 #   Unavailable - optional boolean; an unavailable row renders dim with an [unavailable] prefix, cannot be selected, and groups at the end of the list (Locked is accepted as the legacy field name).
 #   Actions - optional array of action names; the row renders a hybrid radio line beneath the label and detail instead of the checkbox: ○ / ● glyphs, at most one action set per row (setting one clears the siblings), none required. space sets/unsets the focused action, left/right or h/l move between the row's actions.
-# Absent Detail, Unavailable, and Actions fields are tolerated.
+#   ActionColors - optional hashtable mapping an action name to an ANSI escape string (e.g. $PSStyle.Foreground.Blue); the color paints the action text and its checked glyph, and the default checked-glyph green applies when an action has no entry.
+# Absent Detail, Unavailable, Actions, and ActionColors fields are tolerated.
 #
 # .PARAMETER Title
 # Headline printed above the rows.
@@ -156,6 +157,15 @@ function Read-MultiChoice {
 		param($Opt)
 		if ($Opt.PSObject.Properties['Actions'] -and $Opt.Actions) { return , @($Opt.Actions) }
 		return , @()
+	}
+	# an action's caller color (ANSI escape string) or $null: the color paints
+	# the action text and its checked glyph
+	$getActionColor = {
+		param($Opt, [string]$Name)
+		if ($Opt.PSObject.Properties['ActionColors'] -and $Opt.ActionColors -and $Opt.ActionColors.ContainsKey($Name)) {
+			return [string]$Opt.ActionColors[$Name]
+		}
+		return $null
 	}
 	if ($focusIndex.Count -eq 0) { return , @() }
 	$chosen = [System.Collections.Generic.HashSet[int]]::new()
@@ -284,8 +294,10 @@ function Read-MultiChoice {
 					for ($a = 0; $a -lt $actions.Count; $a++) {
 						$isChosen = $radioChoices.ContainsKey($i) -and $radioChoices[$i] -eq $a
 						$isFocusedAction = ($focusIndex[$cursor] -eq $i -and $a -eq $actionCursor)
-						$glyph = $isChosen ? "$green●$reset" : "$dim○$reset"
-						$text = $isFocusedAction ? "$bold$($actions[$a])$reset" : $actions[$a]
+						$color = & $getActionColor $opt ([string]$actions[$a])
+						$glyph = $isChosen ? "$($color ?? $green)●$reset" : "$dim○$reset"
+						$text = "$color$($actions[$a])$reset"
+						if ($isFocusedAction) { $text = "$bold$text" }
 						$groups += "$glyph $text"
 					}
 					$out += "      " + ($groups -join '    ')
@@ -400,9 +412,9 @@ if ($MyInvocation.InvocationName -ne '.') {
 	Write-Host ''
 	Write-Host 'Demo multi-choice menu (rows with actions take left/right + space; checkbox rows take space; Enter confirms):'
 	$options = @(
-		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Green)alpha$reset$($PSStyle.Dim)  not installed$reset"; Detail = @('~/.config/alpha', '~/.local/share/alpha'); Actions = @('install') }
+		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Green)alpha$reset$($PSStyle.Dim)  not installed$reset"; Detail = @('~/.config/alpha', '~/.local/share/alpha'); Actions = @('install'); ActionColors = @{ install = $PSStyle.Foreground.Blue } }
 		[pscustomobject]@{ Label = "$($PSStyle.Dim)delta  unavailable by policy$reset"; Detail = @(); Unavailable = $true }
-		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Yellow)beta$reset$($PSStyle.Dim)  installed$reset"; Detail = @('~/.config/beta', '~/.local/share/beta'); Actions = @('upgrade', 'uninstall') }
+		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Yellow)beta$reset$($PSStyle.Dim)  installed$reset"; Detail = @('~/.config/beta', '~/.local/share/beta'); Actions = @('upgrade', 'uninstall'); ActionColors = @{ upgrade = $PSStyle.Foreground.Green; uninstall = $PSStyle.Foreground.Red } }
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Magenta)gamma$reset$($PSStyle.Dim)  legacy checkbox row$reset"; Detail = @('~/.config/gamma') }
 	)
 	$picked = Read-MultiChoice -Options $options -Title 'Select things' -FooterSummary { param($Chosen) "$($Chosen.Count) selected" }
