@@ -76,7 +76,7 @@ for ($i = 0; $i -lt $b.Length; $i++) {
 
 ## shared console menu
 
-Interactive console menus (single-choice and multi-choice) use the shared handler in [scripts/menu.ps1](./scripts/menu.ps1) — never a local copy. `Read-MenuChoice` returns the index of the chosen row (-1 for Esc, -2 for Ctrl+C). `Read-MultiChoice` returns the chosen option objects, an empty array for "confirmed nothing", or `$null` when cancelled or aborted. Resolve the file through a sibling checkout first, then a cache, then a download:
+Interactive console menus (single-choice and multi-choice) use the shared handler in [scripts/menu.ps1](./scripts/menu.ps1) — never a local copy. `Read-MenuChoice` returns the index of the chosen row (-1 for Esc, -2 for Ctrl+C). `Read-MultiChoice` returns one array over the selection — an empty array for "confirmed nothing", `$null` when cancelled or aborted. Options without an `Actions` field behave as checkboxes (`[x]`/`[ ]`, space toggles the row, the ticked rows return the option objects). Options with an `Actions` array render a hybrid radio line beneath the label and detail — `○` unchecked, `●` checked, at most one action set per row, none required: space sets the focused action and clears its siblings, space again unsets it, left/right (or h/l) move between the row's actions — and each set row returns an `@{ Index; Option; Action }` wrapper. Resolve the file through a sibling checkout first, then a cache, then a download:
 
 ```powershell
 $menu = $null
@@ -101,3 +101,5 @@ if (-not (Get-Command Read-MenuChoice -ErrorAction Ignore)) { throw "the shared 
 ```
 
 Adjust the two sibling paths for the depth of your script. A tool that must also run without the network keeps its own fallback prompt for the case where the download fails and no copy exists.
+
+When a function or scriptblock returns an array a caller reads as an array (`.Count`, indexing), end the return with the comma guard (`return , @(...)`) — pipeline unrolling collapses a single-element return to a scalar and an empty one to `$null`, and a scalar string still indexes (`'install'[0]` is `'i'`), so the bugs are quiet.
