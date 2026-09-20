@@ -14,7 +14,7 @@ Dot-source this file, then call Read-MenuChoice or Read-MultiChoice:
 
 Read-MenuChoice is the single-choice menu. The user moves with the Up/Down arrow keys (wrap-around) or j/k, jumps with Home/End, confirms with Enter, jumps to a row with the digit keys, backs out with Esc, and aborts with Ctrl+C. It returns the 0-based index of the chosen row, -1 for Esc ("back"), or -2 for Ctrl+C ("abort").
 
-Read-MultiChoice is the full-height multi-choice menu: rows scroll inside the console window, each option shows a caller-styled label with optional dim detail lines underneath, locked rows cannot be selected, and the footer carries a live summary of the current selection. Options without an Actions field behave as checkboxes - [x] / [ ] , space toggles the row. Options with an Actions array render a hybrid radio line beneath the label and detail: ○ unchecked, ● checked, at most one action set per row, none required - space sets an action and clears its siblings, space again unsets it, and left/right (or h/l) move between a row's actions. On confirm it returns one array: checkbox rows yield the option object itself, action rows yield a wrapper carrying Index, Option, and the chosen Action string. An empty array means "confirmed nothing"; $null means cancelled (Esc or q) or aborted (Ctrl+C).
+Read-MultiChoice is the full-height multi-choice menu: rows scroll inside the console window, each option shows a caller-styled label with optional dim detail lines underneath, unavailable rows render dim with an [unavailable] prefix, cannot be selected, and group at the end of the list, and the footer carries a live summary of the current selection. Options without an Actions field behave as checkboxes - [x] / [ ] , space toggles the row. Options with an Actions array render a hybrid radio line beneath the label and detail: ○ unchecked, ● checked, at most one action set per row, none required - space sets an action and clears its siblings, space again unsets it, and left/right (or h/l) move between a row's actions. On confirm it returns one array: checkbox rows yield the option object itself, action rows yield a wrapper carrying Index, Option, and the chosen Action string. An empty array means "confirmed nothing"; $null means cancelled (Esc or q) or aborted (Ctrl+C).
 
 Resolve this file through a sibling checkout of bevry-vibes/skills, a cache, or a download - see the "shared console menu" section of bevry-vibes/skills powershell.md for the canonical bootstrap.
 
@@ -102,9 +102,9 @@ function Read-MenuChoice {
 # One object per row. Read the fields through these names:
 #   Label  - the row headline, a single-line string the caller has already styled (the menu adds the checkbox, the focus arrow, and reverse emphasis to nothing - keep the styling inside the label).
 #   Detail - optional array of single-line strings, shown dim beneath the label; extra lines beyond MaxDetailLines collapse into a "+N more" line.
-#   Locked - optional boolean; a locked row renders dim with a [locked] prefix and cannot be selected.
+#   Unavailable - optional boolean; an unavailable row renders dim with an [unavailable] prefix, cannot be selected, and groups at the end of the list (Locked is accepted as the legacy field name).
 #   Actions - optional array of action names; the row renders a hybrid radio line beneath the label and detail instead of the checkbox: ○ / ● glyphs, at most one action set per row (setting one clears the siblings), none required. space sets/unsets the focused action, left/right or h/l move between the row's actions.
-# Absent Detail, Locked, and Actions fields are tolerated.
+# Absent Detail, Unavailable, and Actions fields are tolerated.
 #
 # .PARAMETER Title
 # Headline printed above the rows.
@@ -137,10 +137,18 @@ function Read-MultiChoice {
 	if ($Options.Count -eq 0) { return , @() }
 	if ([Console]::IsInputRedirected) { throw 'Read-MultiChoice requires an interactive console' }
 
-	$isLocked = {
+	$isUnavailable = {
 		param($Opt)
-		return ($Opt.PSObject.Properties['Locked'] -and $Opt.Locked)
+		if ($Opt.PSObject.Properties['Unavailable'] -and $Opt.Unavailable) { return $true }
+		return ($Opt.PSObject.Properties['Locked'] -and $Opt.Locked)   # legacy field name
 	}
+	$available = @(for ($i = 0; $i -lt $Options.Count; $i++) { if (-not (& $isUnavailable $Options[$i])) { $i } })
+	# unavailable rows group at the end: the available rows keep the caller's
+	# order, the unavailable ones follow in theirs — the wrapper Index values
+	# stay the caller's original option positions either way
+	$unavailable = @(for ($i = 0; $i -lt $Options.Count; $i++) { if (& $isUnavailable $Options[$i]) { $i } })
+	$displayOrder = $available + $unavailable
+	$focusIndex = $available
 	# the action group of a row: empty for legacy checkbox rows. both returns
 	# carry the comma guard - & unrolls a single-element (or empty) array return
 	# into a scalar (or $null), and 'install'[0] is 'i'.
@@ -149,7 +157,6 @@ function Read-MultiChoice {
 		if ($Opt.PSObject.Properties['Actions'] -and $Opt.Actions) { return , @($Opt.Actions) }
 		return , @()
 	}
-	$focusIndex = @(for ($i = 0; $i -lt $Options.Count; $i++) { if (-not (& $isLocked $Options[$i])) { $i } })
 	if ($focusIndex.Count -eq 0) { return , @() }
 	$chosen = [System.Collections.Generic.HashSet[int]]::new()
 	$radioChoices = [System.Collections.Generic.Dictionary[int, int]]::new()
@@ -191,7 +198,7 @@ function Read-MultiChoice {
 	$lineCount = {
 		# headline + detail preview lines (+ an overflow line) + the radio line per entry
 		param($Opt)
-		if (& $isLocked $Opt) { return 1 }
+		if (& $isUnavailable $Opt) { return 1 }
 		$details = @($Opt.PSObject.Properties['Detail'] ? $Opt.Detail : @())
 		$detailLines = [Math]::Min($details.Count, $MaxDetailLines)
 		$more = ($details.Count -gt $MaxDetailLines) ? 1 : 0
@@ -210,7 +217,6 @@ function Read-MultiChoice {
 		'up/down or j/k move · space toggle · a all · n none · enter confirm · q or esc cancel'
 	}
 
-	$shown = @()
 	$previousDrawn = 0
 	try {
 		[Console]::TreatControlCAsInput = $true
@@ -218,25 +224,28 @@ function Read-MultiChoice {
 		[Console]::CursorVisible = $false
 		while ($true) {
 			# fill the window: header + footer + a one-line breathing margin.
+			# positions are displayOrder slots (available rows first, then the
+			# grouped unavailable tail); the focused row sits at the cursor's
+			# slot because focusIndex is exactly the available segment.
 			# going up pulls $top back to the focused row (one row per keypress);
 			# going down drops leading rows until the focused row fits - the
 			# same one-row-at-a-time viewport shift, never a page restart.
 			$budget = [Math]::Max([Console]::WindowHeight - $headerLines - 3, 3)
-			if ($focusIndex[$cursor] -lt $top) { $top = $focusIndex[$cursor] }
+			if ($cursor -lt $top) { $top = $cursor }
 
 			while ($true) {
-				$shown = @()
+				$shownPos = @()
 				$lines = 0
-				for ($i = $top; $i -lt $Options.Count; $i++) {
-					$count = & $lineCount $Options[$i]
-					if ($lines + $count -gt $budget -and $shown.Count -gt 0) { break }
-					$shown += $i
+				for ($p = $top; $p -lt $displayOrder.Count; $p++) {
+					$count = & $lineCount $Options[$displayOrder[$p]]
+					if ($lines + $count -gt $budget -and $shownPos.Count -gt 0) { break }
+					$shownPos += $p
 					$lines += [Math]::Min($count, $budget - $lines)
 				}
-				if ($shown -contains $focusIndex[$cursor]) { break }
-				if ($shown.Count -le 1) { $top = $focusIndex[$cursor]; continue }
+				if ($shownPos -contains $cursor) { break }
+				if ($shownPos.Count -le 1) { $top = $cursor; continue }
 				# drop the first visible row and refill
-				$top = $shown[1]
+				$top = $shownPos[1]
 			}
 
 			# footer: controls + the caller's live summary over the current selection
@@ -247,10 +256,11 @@ function Read-MultiChoice {
 			)
 
 			$out = @()
-			foreach ($i in $shown) {
+			foreach ($p in $shownPos) {
+				$i = $displayOrder[$p]
 				$opt = $Options[$i]
-				if (& $isLocked $opt) {
-					$out += "$dim  [locked] $($opt.Label)$reset"
+				if (& $isUnavailable $opt) {
+					$out += "$dim  [unavailable] $($opt.Label)$reset"
 					continue
 				}
 				$arrow = ($focusIndex[$cursor] -eq $i) ? "$bold>$reset " : '  '
@@ -284,7 +294,7 @@ function Read-MultiChoice {
 
 			$drawn = $out.Count + $footer.Count
 			# return to the previous frame's first line - by ITS line count, not
-			# this frame's: scrolling swaps rows of different heights (a locked
+			# this frame's: scrolling swaps rows of different heights (an unavailable
 			# row is one line, an action row several), so the counts diverge and
 			# a wrong cursor-up leaves the redraw misaligned
 			if ($previousDrawn -gt 0) { [Console]::Write("$esc[$($previousDrawn)A") }
@@ -391,9 +401,9 @@ if ($MyInvocation.InvocationName -ne '.') {
 	Write-Host 'Demo multi-choice menu (rows with actions take left/right + space; checkbox rows take space; Enter confirms):'
 	$options = @(
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Green)alpha$reset$($PSStyle.Dim)  not installed$reset"; Detail = @('~/.config/alpha', '~/.local/share/alpha'); Actions = @('install') }
+		[pscustomobject]@{ Label = "$($PSStyle.Dim)delta  unavailable by policy$reset"; Detail = @(); Unavailable = $true }
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Yellow)beta$reset$($PSStyle.Dim)  installed$reset"; Detail = @('~/.config/beta', '~/.local/share/beta'); Actions = @('upgrade', 'uninstall') }
 		[pscustomobject]@{ Label = "$($PSStyle.Foreground.Magenta)gamma$reset$($PSStyle.Dim)  legacy checkbox row$reset"; Detail = @('~/.config/gamma') }
-		[pscustomobject]@{ Label = "$($PSStyle.Dim)delta  locked by policy$reset"; Detail = @(); Locked = $true }
 	)
 	$picked = Read-MultiChoice -Options $options -Title 'Select things' -FooterSummary { param($Chosen) "$($Chosen.Count) selected" }
 	if ($null -eq $picked) {
