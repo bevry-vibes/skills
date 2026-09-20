@@ -43,6 +43,7 @@ https://github.com/bevry-vibes/skills
 function Read-MenuChoice {
 	param(
 		[Parameter(Mandatory)]
+		[AllowEmptyCollection()]
 		[string[]]$Rows,
 		[int]$Initial = 0
 	)
@@ -55,8 +56,9 @@ function Read-MenuChoice {
 	$highlight = $PSStyle.Reverse
 	$reset = $PSStyle.Reset
 	$previousTreatControlC = [Console]::TreatControlCAsInput
+	# The CursorVisible getter throws on macOS, so read nothing - only set and restore.
 	[Console]::TreatControlCAsInput = $true
-	try { [Console]::CursorVisible = $false } catch { }
+	[Console]::CursorVisible = $false
 
 	try {
 		$firstDraw = $true
@@ -87,7 +89,7 @@ function Read-MenuChoice {
 		}
 	} finally {
 		[Console]::TreatControlCAsInput = $previousTreatControlC
-		try { [Console]::CursorVisible = $true } catch { }
+		try { [Console]::CursorVisible = $true } catch { Write-Host '' }
 	}
 }
 
@@ -122,6 +124,7 @@ function Read-MenuChoice {
 function Read-MultiChoice {
 	param(
 		[Parameter(Mandatory)]
+		[AllowEmptyCollection()]
 		[pscustomobject[]]$Options,
 		[string]$Title = 'Select',
 		[scriptblock]$FooterSummary = { param($Chosen) "$($Chosen.Count) selected" },
@@ -166,7 +169,8 @@ function Read-MultiChoice {
 	$firstDraw = $true
 	try {
 		[Console]::TreatControlCAsInput = $true
-		try { [Console]::CursorVisible = $false } catch { }
+		# The CursorVisible getter throws on macOS, so read nothing - only set and restore.
+		[Console]::CursorVisible = $false
 		while ($true) {
 			# fill the window: header + footer + a one-line breathing margin
 			$budget = [Math]::Max([Console]::WindowHeight - $headerLines - 3, 3)
