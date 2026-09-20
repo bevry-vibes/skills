@@ -211,7 +211,7 @@ function Read-MultiChoice {
 	}
 
 	$shown = @()
-	$firstDraw = $true
+	$previousDrawn = 0
 	try {
 		[Console]::TreatControlCAsInput = $true
 		# The CursorVisible getter throws on macOS, so read nothing - only set and restore.
@@ -277,10 +277,23 @@ function Read-MultiChoice {
 				}
 			}
 
-			$lastDrawn = $out.Count + $footer.Count
-			if (-not $firstDraw) { [Console]::Write("$esc[$($lastDrawn)A") }
-			$firstDraw = $false
+			$drawn = $out.Count + $footer.Count
+			# return to the previous frame's first line - by ITS line count, not
+			# this frame's: scrolling swaps rows of different heights (a locked
+			# row is one line, an action row several), so the counts diverge and
+			# a wrong cursor-up leaves the redraw misaligned
+			if ($previousDrawn -gt 0) { [Console]::Write("$esc[$($previousDrawn)A") }
 			foreach ($line in $out + $footer) { [Console]::Write("$esc[2K$line`r`n") }
+			if ($previousDrawn -gt $drawn) {
+				# the frame shrank: erase the surplus lines the taller previous
+				# frame left below this one, then step back up so the cursor
+				# stays one line below the last drawn line (the next redraw's
+				# cursor-up base)
+				$surplus = $previousDrawn - $drawn
+				for ($s = 0; $s -lt $surplus; $s++) { [Console]::Write("$esc[2K`r`n") }
+				[Console]::Write("$esc[$($surplus)A")
+			}
+			$previousDrawn = $drawn
 
 			$key = [Console]::ReadKey($true)
 			if ($key.Key -eq [ConsoleKey]::Enter) { break }
