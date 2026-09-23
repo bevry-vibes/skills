@@ -17,6 +17,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
 - @./build.md our instructions to AIs on building, packaging, and login-autostart for menu-bar/tray apps
+- @./python.md our instructions to AIs on Python work — uv always, stdlib first
 - @./powershell.md our instructions to AIs on PowerShell 7.6+ work
 - @./zig.md our instructions to AIs on Zig 0.16 work
 - @./minimax.md our instructions for MiniMax model tweaks
