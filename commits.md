@@ -44,9 +44,9 @@ The only ever permitted way to generate this co-author trailer is via [agent-det
 
 Commits and pushes sign through the 1Password SSH agent — unlock 1Password first; the agent intermittently returns errors otherwise.
 
-## github issues, pull requests, and comments
+## github issues, pull requests, discussions, and comments
 
-GitHub attributes an issue, pull request, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue body, pull request body, or comment must therefore close with an **assisted-by trailer** footer:
+GitHub attributes an issue, pull request, discussion, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue, pull request, discussion, or comment must therefore close with an **assisted-by trailer** footer:
 
 ```text
 ---
