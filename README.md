@@ -17,6 +17,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
 - @./build.md our instructions to AIs on building, packaging, and login-autostart for menu-bar/tray apps
+- @./emdash.md our instructions to AIs on EmDash CMS deployment and operations — Cloudflare Workers and Node, seeding, i18n, plugins
 - @./python.md our instructions to AIs on Python work — uv always, stdlib first
 - @./powershell.md our instructions to AIs on PowerShell 7.6+ work
 - @./zig.md our instructions to AIs on Zig 0.16 work
@@ -27,6 +28,8 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./scripts/menu.ps1 the shared arrow-key console menu (`Read-MenuChoice` / `Read-MultiChoice`) for bevry-vibes PowerShell tools — resolve it per powershell.md "shared console menu", never vendor a copy
 
 ## local tweaks pattern
+
+This repository does not use the `skills/<name>/SKILL.md` directory format that other agent tooling uses. Skills are single markdown files at the repository root. This applies to local tweaked skills too: do not create a local skill directory (such as `.agents/skills/<name>/SKILL.md`) for a tweaked skill — create a root-level `<name>.md` file per the pattern below.
 
 When a referenced skill applies to your project **with your project's tweaks**:
 
