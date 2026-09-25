@@ -31,6 +31,14 @@ Write all content and all response prose in [ASD-STE100](https://en.wikipedia.or
 
 The rationale mirrors tabs over spaces: readers are distributed, and some are machines. A controlled language gives every reader the same parse of the same text, so the meaning does not depend on the reader's locale or context. These rules trade expressiveness for that guarantee.
 
+## language
+
+Write code and documentation in International English. This rule covers every name you invent for a code artefact and every word a developer reads. It covers comments, commit messages, plan documents, and identifiers: packages, plugins, directories, files, functions, variables, routes, APIs, and schema fields.
+
+Do not use another language in code. Readers are global and include machines. One language keeps search, review, and refactoring reliable.
+
+Content is exempt. Content is text for an end user: product copy, site pages, UI strings in a translated interface, and data that users enter. Write content in the language of its audience. A project can serve content in one language and keep all of its code in International English.
+
 ## wrapping
 
 Never hard-wrap prose to a fixed column — no manual line breaks inserted to fit a width, and no editor hard word-wrap or "fill paragraph" applied on save. A line is as long as its content needs; the viewer's soft-wrap setting lays out whatever runs long.
