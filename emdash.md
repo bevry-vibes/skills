@@ -34,6 +34,9 @@ Lessons from deploying and operating EmDash CMS sites (Astro on Cloudflare Worke
 - Slugs are per-locale and auto-derived only from `title`/`name` fields, so sibling slugs legitimately differ. Never assume slug parity: resolve sibling URLs via `getTranslations`; strip the locale prefix from entry ids (`en/slug`) before building URLs; `data.id` is the stable ULID and `data.translationGroup` links the group. Mixed-locale listings merge by `translationGroup`, not id.
 - `content.create` with `translationOf` rejects duplicate locales ("Translation already exists in locale ...") — resolve the existing sibling and update it instead.
 - Admin content-list dates come from the collection's `dateField` — point it at the source datetime field or entries display import timestamps.
+- A page whose per-locale paths diverge beyond the locale prefix (e.g. `/kalender` vs `/en/calendar`) needs ONE path map (locale → path) that the language toggle, the nav menu, and the active-state check all derive from. Patching the toggle with per-page conditionals is how the "toggle 404s on the new page" bug class happens — new pages extend the map, never the toggle logic.
+- Adding a page touches more than routes: route files for both locales, UI-string dictionary (type + every locale map — dictionary keys are code, International English), nav (menu rows are admin data with locale-agnostic paths; keep label/path translation maps), sitemap, head alternates/feeds, and the locale toggle. Missing any one surfaces later as a menu or toggle bug.
+- URL fragments never reach the server. Anything anchor-dependent (locale toggles targeting a renamed path, reveal-on-hash elements) must resolve client-side.
 
 ## Plugins
 
@@ -46,6 +49,11 @@ Lessons from deploying and operating EmDash CMS sites (Astro on Cloudflare Worke
 - `content:afterDelete` runs after the row is gone — group/relationship resolution via the deleted row is impossible; persist group/target ids in your own state and scan for them.
 - Job updates on claims: use `updateIf` with explicit scalar sets. Spreading whole claim documents back into `put` re-binds nested objects and fails with "Cannot bind [object Object] to SQLite".
 - Hook error policy: use `"continue"` for side-effect hooks so one failure doesn't abort the pipeline; log with `ctx.log` (it reaches `wrangler tail`).
+- `plugin:activate` never fires for config plugins at boot — it runs only on an explicit admin enable. A cron schedule registered there never lands (and the scheduler never consults plugin state; it runs rows with `enabled = 1`). Register schedules from hooks that DO run (a content hook, an admin page load): `ctx.cron.schedule` is an upsert that re-enables the row, so re-arming self-heals.
+- The per-task cron handler object form (`cron: { task: { handler } }`) fails at dispatch with "handler is not a function" — use the function form `cron: async (event, ctx)` and switch on `event.name`.
+- `content:afterSave` hooks are deferred (waitUntil) but capped at a 5-second timeout — long provider calls (LLM round-trips are ~9-10 s) belong in cron with a per-tick budget, not in the save hook.
+- Plugin routes can return raw HTTP responses: declare the route with `response: "raw"` and return a `Response` (HTML confirm pages, iCalendar feeds) — `public: true` skips auth for visitor-facing ones.
+- Trusted local plugins compile into one bundle — sibling plugins import each other's exported modules directly (shared LLM clients, detectors) instead of calling each other over HTTP.
 
 ## Debugging playbook
 
