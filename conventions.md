@@ -47,6 +47,8 @@ Breaking a line for legibility is always fine — a new line within a paragraph,
 
 The rationale is the same as tabs over spaces — different agents author at different column policies, so any fixed width is churn: a re-wrapped paragraph touches every line of its diff. Break lines for meaning, never for measurement, and the content adapts to the user's viewer preferences, never the other way around. Structured formats keep their meaningful line breaks: code blocks, tables, diffs, and source files stay exactly as their syntax dictates.
 
+For documents and comment files already carrying width-driven wraps, reflow them retroactively with [bevry-vibes/reflow](https://github.com/bevry-vibes/reflow): it extracts width-wrapped prose blocks, re-breaks them at sentence and clause boundaries, and assembles the result with a byte-equality invariant proving no words moved. It covers markdown and line-comment files; list items pass through untouched.
+
 ## splat naming
 
 Never refer to a to-be-defined name with `X`, `Xxx`, or `XXX`.
