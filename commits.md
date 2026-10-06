@@ -57,18 +57,18 @@ The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detec
 
 ## releases
 
-A tagged release carries the full changelog as its body:
+A tagged release carries the full changelog as its body — the annotated tag's message IS the release notes:
 
 1. **Versioning** — semver, tagged `v<major>.<minor>.<patch>`, unless the project's tweaks elect calver (see **calver** below).
 2. **Version bump** — `chore: release <version> — <headline>`; bump the version in the project's manifest (`Cargo.toml`, `package.json`, `deno.json`, …) and refresh its lockfile.
-3. **Tag** — annotated `<version>`; the tag message is a one-paragraph summary. The release title is `<version> — <headline>` — never repeat the product name.
-4. **Push** — `main` + the tag; the release workflow builds and attaches the artifacts. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
-5. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
-6. **Structure** — no H1 (the release title already renders as the header); only this release's changes, never prior releases'; then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains); close with exactly one **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
-7. Don't set `generate_release_notes` anywhere in the release workflow — we write our own release notes; a generated block would only append a second changelog to the body.
-8. **Full notes** — once the workflow run completes (`gh run watch <run-id> --exit-status`), set the title and body: `gh release edit <version> --title "<version> — <headline>" --notes-file .release-notes-<version>.md`. Workflows that leave the title unset create the release named after the tag alone — this edit is where the title rule is applied.
-9. The notes file is an artifact — delete it after uploading; never commit it.
-10. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: title and body updated, not a draft or prerelease, assets present.
+3. **Drafting** — draft the notes in `.release-notes-<version>.md` at the repo root, sourced from `git log --oneline <prev-tag>..HEAD` plus the commit bodies — verify every claim against a commit message, never invent.
+4. **Structure** — no H1 (the release title already renders as the header); only this release's changes, never prior releases'; then a `## What's changed since <prev-tag>` heading with themed `###` sections (new features, platform support, breaking changes, tooling — whatever the release actually contains); close with exactly one **Full Changelog** compare link: `https://github.com/<owner>/<repo>/compare/<prev-tag>...<version>`.
+5. **Tag** — annotated `<version>`, carrying the notes file verbatim as its message: `git tag -a <version> --cleanup=verbatim -F .release-notes-<version>.md`. `--cleanup=verbatim` is not optional: without it git strips every `#`-prefixed line from the message as a comment, and the markdown headings never reach the release. The release title is `<version> — <headline>` — never repeat the product name.
+6. **Push** — `main` + the tag; the release workflow builds, attaches the artifacts, and publishes the release with the tag's message as the body. Package registries are immutable (crates.io, npm, …): never re-cut a pushed version — cut a patch bump instead. Registry-publish steps run **before** packaging steps — packaging dirties the tree, and a dirty tree fails the publish.
+7. **Notes gate** — the workflow extracts the message from the tag object (header and signature stripped), validates that it carries the notes, and **fails the job when it does not** — a naked tag publishes nothing, so the tag can be re-cut safely: `git tag -d <version> && git push origin :refs/tags/<version>`, re-annotate, push again. Do not set `generate_release_notes` anywhere in the release workflow — the tag is the changelog; a generated block would only append a second one to the body.
+8. **Rewording** — after publication, wording changes go through `gh release edit <version>`; the tag stays as cut. Workflows that leave the title unset create the release named after the tag alone — set the title at create time.
+9. The notes file is an artifact — delete it once the tag exists; never commit it.
+10. **Verification** — the workflow runs complete (`gh run watch` / `gh run list`), then `gh release view <version>`: the body matches the tag message, not a draft or prerelease, assets present.
 
 ### calver
 
@@ -85,8 +85,10 @@ today=$(date -u +%Y.%-m.%-d)        # GNU & macOS alike with %-
 rev=$(git tag --list "${today}-*" | wc -l | tr -d ' ')
 new_version="${today}-$((rev + 1))"
 
-# 2. Bump `<new_version>` into the project's manifest, commit on main
-#    with the generated co-author trailer, then tag and push both.
-git tag "${new_version}"
+# 2. Bump `<new_version>` into the project's manifest and commit on main
+#    (author.md carries the trailer and signing rules).
+# 3. Draft `.release-notes-<new_version>.md` (steps 3-4 above), then tag with
+#    the notes and push both.
+git tag -a "${new_version}" --cleanup=verbatim -F ".release-notes-${new_version}.md"
 git push origin main "${new_version}"
 ```
