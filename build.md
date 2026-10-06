@@ -5,6 +5,7 @@ Build, packaging, and login-autostart for cross-platform menu-bar/tray desktop a
 ## toolchain
 
 - Frontends are Deno-first: tasks live in `deno.json` (`dev`/`build`/`check`, plus `tauri`/`tauri:build` via `deno run -A npm:@tauri-apps/cli`), and npm dependencies come through `npm:` specifiers in the imports map — no package.json scripts.
+- Deno sites built with Vite: anchor the Vite major with a root `package.json` carrying only that dependency (`"dependencies": { "vite": "^7" }`, no scripts). Deno resolves npm peer dependencies to their latest satisfying major, so a Vite-using plugin's peer can float to a Vite that needs Node builtins Deno does not ship (Vite 8 imports `node:util` `parseEnv`; Deno 2.6 lacks it) and the build dies inside the dependency. Drop the anchor when the stack moves past the gap.
 - Pin each app's Vite dev/preview ports with `strictPort: true`, so a household of Tauri/Vite apps on one machine never collide.
 - Tauri build bridge: `build.beforeDevCommand` starts the frontend dev server, `build.devUrl` points at it, `build.beforeBuildCommand` runs the frontend build, `build.frontendDist` points at its output.
 - Rust release profile: `strip = true`, `lto = true`, `codegen-units = 1`.
