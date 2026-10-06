@@ -54,3 +54,7 @@ For documents and comment files already carrying width-driven wraps, reflow them
 Never refer to a to-be-defined name with `X`, `Xxx`, or `XXX`.
 Use an asterisk splat (`build*Env`) or the interpolated form matching the language's conventions — `build<Harness>Env` (camelCase), `build<HARNESS>_ENV` (UPPER_SNAKE), `build{Harness}Env` / `build${HARNESS}Env` as the syntax dictates.
 Always a real, greppable pattern — never `X`.
+
+## attribution
+
+Who authored an artifact, and how that is stated — the author / committer identities, the co-author and assisted-by trailers, and signing — is authorship's subject, not style's: see [author.md](author.md).

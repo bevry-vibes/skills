@@ -20,7 +20,6 @@ Lessons from deploying and operating EmDash CMS sites (Astro on Cloudflare Worke
 - Seed `$media` URLs are fetched at apply time. After a domain cutover they can become self-referential (your worker now owns the hostname) and abort the whole seed — self-host seed media via the media API (`/_emdash/api/media/file/<storage_key>` serves from R2 without needing a database row), and upload the objects before first boot.
 - Re-applying a seed (`emdash seed --on-conflict update`) re-downloads `$media` and creates DUPLICATE media rows — dedupe against live content references afterwards. Verify `--no-content` actually skips content.
 - `emdash seed` CLI operates on local SQLite only. For remote databases use the REST API with a Bearer token, or a direct D1 SQL import (order tables child-first for foreign keys; NULL out columns referencing rows you do not import, e.g. revision ids and author ids).
-- Commit signing (1Password SSH) fails with "failed to write commit object" when the agent locks — unlock and retry.
 
 ## i18n & translations
 
@@ -50,6 +49,9 @@ Lessons from deploying and operating EmDash CMS sites (Astro on Cloudflare Worke
 - `content:afterSave` hooks are deferred (waitUntil) but capped at a 5-second timeout — long provider calls (LLM round-trips are ~9-10 s) belong in cron with a per-tick budget, not in the save hook.
 - Plugin routes can return raw HTTP responses: declare the route with `response: "raw"` and return a `Response` (HTML confirm pages, iCalendar feeds) — `public: true` skips auth for visitor-facing ones.
 - Trusted local plugins compile into one bundle — sibling plugins import each other's exported modules directly (shared LLM clients, detectors) instead of calling each other over HTTP.
+
+- `emdash` and `@emdash-cms/cloudflare` release in lockstep — upgrade them together.
+- Before upgrading, read the release notes of EVERY version between the installed one and the target — not only the target release. For each intermediate version, look for (a) behaviour and breaking changes to verify against your surfaces, (b) new capabilities worth adopting (e.g. `export-seed --media-base-url`, which makes exported seeds' media importable again), and (c) anything that belongs in your ops scripts or seed.
 
 ## Debugging playbook
 

@@ -24,36 +24,9 @@ All commits MUST follow the Conventional Commits 1.0.0 specification:
 git commit -m "docs(scope): summarize change" -m "Explain the purpose." -m "Co-authored-by: pi - MiniMax-M3 <pi-minimaxm3@local>"
 ```
 
-## commit identities and verification
+## authorship — identities, trailers, signing
 
-A commit has two **separate** identities: an **author / committer** (always the system git user) and a **co-author trailer** (the agent's harness + model). They are on different lines, in different roles, and follow different rules. The two identities are checked together by the **mandatory post-commit verification** below — never commit, amend, or push without running it and reading every line.
-
-### author + committer
-
-**Author + committer = system git identity, always.** `git config --get user.name` / `user.email` is the only author / committer an agent commit may record. The agent's harness and model (`pi`, `grokbuild`, `minimaxcode`, …) must never appear in the author or committer fields.
-
-If either `user.name` and `user.email` are unset or empty, prompt the user for what to configure for them globally, then apply globally. Never assume.
-
-### co-author trailer
-
-**Co-author trailer = agent harness + model, always.** Every agent-authored commit must end with exactly one `Co-authored-by:` trailer identifying the active harness and model. The trailer is a credit line, not a stand-in for the author.
-
-The only ever permitted way to generate this co-author trailer is via [agent-detect](https://github.com/bevry-vibes/agent-detect). If it fails for whatever reason, you must not commit without it, nor guess; your task will now be to fix its co-author trailer generation for your agent.
-
-### signing
-
-Commits and pushes sign through the 1Password SSH agent — unlock 1Password first; the agent intermittently returns errors otherwise.
-
-## github issues, pull requests, discussions, and comments
-
-GitHub attributes an issue, pull request, discussion, or comment to the account that posted it — an agent-authored post otherwise reads as the user's own words. Every agent-authored issue, pull request, discussion, or comment must therefore close with an **assisted-by trailer** footer:
-
-```text
----
-Assisted-by: pi - MiniMax-M3 <pi-minimaxm3@local>
-```
-
-The footer line is the [agent-detect](https://github.com/bevry-vibes/agent-detect) `trailer assisted-by` output, generated fresh for each post the same way the commit co-author trailer is — never guessed or cached. If generation fails, do not post without it; fix the generation first.
+Who authored a commit and how that is stated — the author / committer identities, the `Co-authored-by:` and `Assisted-by:` trailers, the signing policy (human commits sign through 1Password; agent-made commits are never signed), and the mandatory post-commit verification — lives in [author.md](author.md). It applies to every commit in this repository.
 
 ## releases
 
