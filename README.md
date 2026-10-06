@@ -14,6 +14,7 @@ If you are initialising a new project, use these once-off to initialise it:
 Once initialised, reference these in your project's `AGENTS.md` (don't copy, just reference their remote locations and their purpose):
 
 - @./policy.md our AI policy, mandating which AIs are permitted
+- @./author.md our instructions to AIs on authorship — identities, the co-author and assisted-by trailers, and signing
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
 - @./build.md our instructions to AIs on building, packaging, and login-autostart for menu-bar/tray apps
@@ -21,6 +22,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./python.md our instructions to AIs on Python work — uv always, stdlib first
 - @./powershell.md our instructions to AIs on PowerShell 7.6+ work
 - @./zig.md our instructions to AIs on Zig 0.16 work
+- @./zcode.md our instructions to AIs on ZCode sessions — subagent delegation and main-thread verification
 - @./minimax.md our instructions for MiniMax model tweaks
 
 ## shared scripts
