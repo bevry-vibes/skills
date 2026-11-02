@@ -14,6 +14,7 @@ If you are initialising a new project, use these once-off to initialise it:
 Once initialised, reference these in your project's `AGENTS.md` (don't copy, just reference their remote locations and their purpose):
 
 - @./policy.md our AI policy, mandating which AIs are permitted
+- @./secrets.md our hard requirement for secrets — use only documented locations and prompt when a key is missing
 - @./author.md our instructions to AIs on authorship — identities, the co-author and assisted-by trailers, and signing
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
