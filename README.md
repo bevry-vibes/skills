@@ -18,7 +18,7 @@ Once initialised, reference these in your project's `AGENTS.md` (don't copy, jus
 - @./author.md our instructions to AIs on authorship — identities, the co-author and assisted-by trailers, and signing
 - @./commits.md our instructions to AIs on commit hygiene
 - @./plans.md our instructions to AIs on plan conventions
-- @./build.md our instructions to AIs on building, packaging, and login-autostart for menu-bar/tray apps
+- @./build.md our instructions to AIs on building, packaging, login-autostart, and macOS TCC for menu-bar/tray apps
 - @./emdash.md our instructions to AIs on EmDash CMS deployment and operations — Cloudflare Workers and Node, seeding, i18n, plugins
 - @./python.md our instructions to AIs on Python work — uv always, stdlib first
 - @./powershell.md our instructions to AIs on PowerShell 7.6+ work
