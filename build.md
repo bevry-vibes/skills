@@ -11,6 +11,11 @@ Build, packaging, and login-autostart for cross-platform menu-bar/tray desktop a
 - Rust release profile: `strip = true`, `lto = true`, `codegen-units = 1`.
 - Rust repos that follow the tab convention: add `rustfmt.toml` with `hard_tabs = true`, so `cargo fmt --check` passes without converting the codebase to spaces.
 
+## ci
+
+- Pin the Rust toolchain in `rust-toolchain.toml` (`channel = "1.100.0"`, `components = ["clippy", "rustfmt"]`) and use the same version in CI (`dtolnay/rust-toolchain@1.100.0`). A rustfmt update can otherwise fail `cargo fmt --check` on an unchanged tree.
+- Keep each GitHub action on its current major, and read the run annotations. A major that targets a deprecated Node runtime still runs, but GitHub forces a newer Node and warns. At the 2026-11 pass, `actions/checkout@v7`, `actions/upload-artifact@v7`, `actions/cache@v6`, and `softprops/action-gh-release@v3` were current. `Swatinem/rust-cache@v2`, `denoland/setup-deno@v2`, and `step-security/setup-zig@v2` were current.
+
 ## menu-bar apps
 
 - No Dock icon: `tauri::ActivationPolicy::Accessory` on macOS (Tauri) or `LSUIElement=true` in `Info.plist` (native). Tauri mains also carry `#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]`.
